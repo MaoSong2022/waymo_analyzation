@@ -30,14 +30,6 @@ def fig_canvas_image(fig):
     return data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
 
 
-def get_colormap(num_agents):
-    """Compute a color map array of shape [num_agents, 4]."""
-    colors = cm.get_cmap('jet', num_agents)
-    colors = colors(range(num_agents))
-    np.random.shuffle(colors)
-    return colors
-
-
 def get_viewport(states, masks):
     valid_states = states[masks]
     all_y = valid_states[..., 1]
@@ -55,7 +47,7 @@ def get_viewport(states, masks):
 
 
 def visualize_frame(ego_state, ego_mask, agents_state, agents_mask, roadgraph,
-                    center_x, center_y, width, color_map, title, size_pixels=1000):
+                    center_x, center_y, width, title, size_pixels=1000):
     fig, ax = create_figure_and_axes(size_pixels)
 
     roadgraph_points = roadgraph[:, :2].transpose()
@@ -113,7 +105,6 @@ def visualize_scenario(data, size_pixels=1000):
 
     roadgraph = np.vstack((road_line_points, road_edge_points))
 
-    color_map = get_colormap(num_agents)
     center_x, center_y, width = get_viewport(agent_states, agent_masks)
 
     images = []
@@ -122,7 +113,7 @@ def visualize_scenario(data, size_pixels=1000):
         image = visualize_frame(ego_states[i], ego_masks[i],
                                 agent_state[:, 0], agent_mask[:, 0],
                                 roadgraph,
-                                center_x, center_y, width, color_map,
+                                center_x, center_y, width,
                                 f"frame:{i}", size_pixels)
         images.append(image)
 

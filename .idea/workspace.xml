@@ -4,8 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9c6c0b26-c923-46ed-ae16-1aeb52bd5884" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="9c6c0b26-c923-46ed-ae16-1aeb52bd5884" name="Changes" comment="feat(visualization): split agents and ego">
       <change beforePath="$PROJECT_DIR$/analytics/data_processing.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/analytics/data_processing.ipynb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/analytics/visualization_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/analytics/visualization_utils.py" afterDir="false" />
     </list>
@@ -68,6 +67,21 @@
       <workItem from="1677467941252" duration="5253000" />
       <workItem from="1677478385547" duration="1028000" />
     </task>
+    <task id="LOCAL-00001" summary="feat(gitignore): add .idea directory">
+      <created>1678779796834</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1678779796834</updated>
+    </task>
+    <task id="LOCAL-00002" summary="feat(visualization): split agents and ego">
+      <created>1678779905489</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1678779905489</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -83,5 +97,10 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="feat(gitignore): add .idea directory" />
+    <MESSAGE value="feat(visualization): split agents and ego" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(visualization): split agents and ego" />
   </component>
 </project>
