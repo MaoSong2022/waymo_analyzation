@@ -31,7 +31,13 @@ def fig_canvas_image(fig):
     return data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
 
 
-def get_viewport(states, masks):
+def get_viewport(tracks):
+    states = np.array([[[state.center_x, state.center_y] for state in track.states]
+                             for track in tracks])
+    # [num_agents, num_steps]
+    masks = np.array([[state.valid for state in track.states]
+                            for track in tracks])
+
     valid_states = states[masks]
     all_y = valid_states[..., 1]
     all_x = valid_states[..., 0]
@@ -73,6 +79,7 @@ def visualize_frame(ego, frame_index, tracks, roadgraph,
     roadgraph_points = roadgraph[:, :2].transpose()
     ax.plot(roadgraph_points[0, :], roadgraph_points[1, :], 'k.', alpha=1, ms=2)
 
+    # plot agent state
     for track in tracks:
         if track.states[frame_index].valid:
             ax = draw_track(ax, track.states[frame_index], color='b')
@@ -99,15 +106,7 @@ def visualize_frame(ego, frame_index, tracks, roadgraph,
 
 def visualize_scenario(data, size_pixels=1000):
     ego = data.tracks[data.sdc_track_index]
-    ego_states = np.array([[state.center_x, state.center_y] for state in data.tracks[data.sdc_track_index].states])
-    ego_masks = np.array([state.valid for state in data.tracks[data.sdc_track_index].states])
-    # [num_agents, num_steps, 2]
-    agent_states = np.array([[[state.center_x, state.center_y] for state in track.states]
-                            for track in data.tracks if track.id != ego.id])
-    # [num_agents, num_steps]
-    agent_masks = np.array([[state.valid for state in track.states]
-                            for track in data.tracks if track.id != ego.id])
-    num_agents, num_steps, _ = agent_states.shape
+    num_frames = len(ego.states)
     tracks = [track for track in data.tracks if track.id != ego.id]
 
     # road graph
@@ -125,15 +124,15 @@ def visualize_scenario(data, size_pixels=1000):
 
     roadgraph = np.vstack((road_line_points, road_edge_points))
 
-    center_x, center_y, width = get_viewport(agent_states, agent_masks)
+    center_x, center_y, width = get_viewport(tracks)
 
     images = []
-    for i in range(num_steps):
-        image = visualize_frame(ego, i,
+    for frame in range(num_frames):
+        image = visualize_frame(ego, frame,
                                 tracks,
                                 roadgraph,
                                 center_x, center_y, width,
-                                f"frame:{i}", size_pixels)
+                                f"frame:{frame}", size_pixels)
         images.append(image)
 
     return images
