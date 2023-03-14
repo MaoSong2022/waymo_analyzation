@@ -47,17 +47,17 @@ def get_viewport(states, masks):
     return center_x, center_y, width
 
 
-def draw_ego(ax, ego_state):
-    hypot = np.hypot(ego_state.length, ego_state.width) / 2
-    theta = np.arctan2(ego_state.length, ego_state.width)
+def draw_track(ax, track_state, color='r'):
+    hypot = np.hypot(track_state.length, track_state.width) / 2
+    theta = np.arctan2(track_state.length, track_state.width)
 
     ax.add_patch(Rectangle(
-        xy=(ego_state.center_x - hypot * np.sin(theta - ego_state.heading),
-            ego_state.center_y - hypot * np.cos(theta - ego_state.heading)),
-        width=ego_state.length,
-        height=ego_state.width,
-        angle=np.degrees(ego_state.heading),
-        facecolor='r',
+        xy=(track_state.center_x - hypot * np.sin(theta - track_state.heading),
+            track_state.center_y - hypot * np.cos(theta - track_state.heading)),
+        width=track_state.length,
+        height=track_state.width,
+        angle=np.degrees(track_state.heading),
+        facecolor=color,
         fill=True,
         alpha=0.7,
         zorder=2,
@@ -66,21 +66,20 @@ def draw_ego(ax, ego_state):
     return ax
 
 
-def visualize_frame(ego, index, agents_state, agents_mask, roadgraph,
+def visualize_frame(ego, frame_index, tracks, roadgraph,
                     center_x, center_y, width, title, size_pixels=1000):
     fig, ax = create_figure_and_axes(size_pixels)
 
     roadgraph_points = roadgraph[:, :2].transpose()
     ax.plot(roadgraph_points[0, :], roadgraph_points[1, :], 'k.', alpha=1, ms=2)
 
-    agents_masked_x = agents_state[:, 0][agents_mask]
-    agents_masked_y = agents_state[:, 1][agents_mask]
-
-    ax.scatter(agents_masked_x, agents_masked_y, marker='o', linewidths=3, color='b')
+    for track in tracks:
+        if track.states[frame_index].valid:
+            ax = draw_track(ax, track.states[frame_index], color='b')
 
     # plot ego state
-    if ego.states[index].valid:
-        ax = draw_ego(ax, ego.states[index])
+    if ego.states[frame_index].valid:
+        ax = draw_track(ax, ego.states[frame_index])
 
     # Title.
     ax.set_title(title)
@@ -109,6 +108,7 @@ def visualize_scenario(data, size_pixels=1000):
     agent_masks = np.array([[state.valid for state in track.states]
                             for track in data.tracks if track.id != ego.id])
     num_agents, num_steps, _ = agent_states.shape
+    tracks = [track for track in data.tracks if track.id != ego.id]
 
     # road graph
     features = data.map_features
@@ -128,10 +128,9 @@ def visualize_scenario(data, size_pixels=1000):
     center_x, center_y, width = get_viewport(agent_states, agent_masks)
 
     images = []
-    for i, (agent_state, agent_mask) in enumerate(zip(np.split(agent_states, num_steps, 1),
-                                                      np.split(agent_masks, num_steps, 1))):
+    for i in range(num_steps):
         image = visualize_frame(ego, i,
-                                agent_state[:, 0], agent_mask[:, 0],
+                                tracks,
                                 roadgraph,
                                 center_x, center_y, width,
                                 f"frame:{i}", size_pixels)
