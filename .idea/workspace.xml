@@ -5,9 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9c6c0b26-c923-46ed-ae16-1aeb52bd5884" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/analytics/data_processing.ipynb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/analytics/visualization_utils.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/analytics/data_processing.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/analytics/data_processing.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/analytics/visualization_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/analytics/visualization_utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -72,5 +72,16 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
 </project>
