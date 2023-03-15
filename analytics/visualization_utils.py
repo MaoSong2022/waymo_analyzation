@@ -1,7 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import animation
-from matplotlib.patches import Rectangle
+from matplotlib.patches import Rectangle, Polygon
+from waymo_open_dataset.protos import map_pb2
 
 
 def create_figure_and_axes(size_pixels):
@@ -72,21 +73,62 @@ def draw_track(ax, track_state, color='r'):
     return ax
 
 
-def visualize_frame(ego, frame_index, tracks, roadgraph,
+def draw_road_graph(ax, road_graph):
+    center_lines, road_lines, road_edges, stop_signs, crosswalks, speed_bumps = road_graph
+    for road_edge in road_edges:
+        points = np.array([[point.x, point.y] for point in road_edge.polyline])
+        pass
+        if road_edge.type == map_pb2.RoadEdge.TYPE_ROAD_EDGE_BOUNDARY:
+            ax.plot(points[:, 0], points[:, 1], 'k', linewidth=3, alpha=1, ms=2)
+        elif road_edge.type == map_pb2.RoadEdge.TYPE_ROAD_EDGE_MEDIAN:
+            ax.plot(points[:, 0], points[:, 1], 'y', linewidth=3, alpha=1, ms=2)
+
+    for road_line in road_lines:
+        pass
+        points = np.array([[point.x, point.y] for point in road_line.polyline])
+        if road_line.type == map_pb2.RoadLine.TYPE_BROKEN_SINGLE_WHITE:
+            ax.plot(points[:, 0], points[:, 1], 'k.', linewidth=1, alpha=1, ms=2)
+        elif road_line.type == map_pb2.RoadLine.TYPE_SOLID_SINGLE_WHITE:
+            ax.plot(points[:, 0], points[:, 1], 'k', linewidth=1, alpha=1, ms=2)
+        elif road_line.type == map_pb2.RoadLine.TYPE_SOLID_DOUBLE_WHITE:
+            ax.plot(points[:, 0], points[:, 1], 'k', linewidth=2, alpha=1, ms=2)
+        elif road_line.type == map_pb2.RoadLine.TYPE_BROKEN_SINGLE_YELLOW:
+            ax.plot(points[:, 0], points[:, 1], 'y.', linewidth=1, alpha=1, ms=2)
+        elif road_line.type == map_pb2.RoadLine.TYPE_BROKEN_DOUBLE_YELLOW:
+            ax.plot(points[:, 0], points[:, 1], 'y.', linewidth=2, alpha=1, ms=2)
+        elif road_line.type == map_pb2.RoadLine.TYPE_SOLID_SINGLE_YELLOW:
+            ax.plot(points[:, 0], points[:, 1], 'y', linewidth=1, alpha=1, ms=2)
+        elif road_line.type == map_pb2.RoadLine.TYPE_SOLID_DOUBLE_YELLOW:
+            ax.plot(points[:, 0], points[:, 1], 'y', linewidth=2, alpha=1, ms=2)
+        elif road_line.type == map_pb2.RoadLine.TYPE_PASSING_DOUBLE_YELLOW:
+            ax.plot(points[:, 0], points[:, 1], 'y', linewidth=2, alpha=1, ms=2)
+
+    for center_line in center_lines:
+        points = np.array([[point.x, point.y] for point in center_line.polyline])
+        ax.plot(points[:, 0], points[:, 1], 'k-.', linewidth=1, alpha=1, ms=2)
+
+    for crosswalk in crosswalks:
+        points = np.array([[point.x, point.y] for point in crosswalk.polygon])
+        ax.add_patch(Polygon(points, facecolor='m', alpha=0.5))
+
+    return ax
+
+
+def visualize_frame(ego, frame_index, tracks, road_graph,
                     center_x, center_y, width, title, size_pixels=1000):
     fig, ax = create_figure_and_axes(size_pixels)
 
-    roadgraph_points = roadgraph[:, :2].transpose()
-    ax.plot(roadgraph_points[0, :], roadgraph_points[1, :], 'k.', alpha=1, ms=2)
+    # plot road information
+    draw_road_graph(ax, road_graph)
 
     # plot agent state
     for track in tracks:
         if track.states[frame_index].valid:
-            ax = draw_track(ax, track.states[frame_index], color='b')
+            draw_track(ax, track.states[frame_index], color='b')
 
     # plot ego state
     if ego.states[frame_index].valid:
-        ax = draw_track(ax, ego.states[frame_index])
+        draw_track(ax, ego.states[frame_index])
 
     # Title.
     ax.set_title(title)
@@ -118,11 +160,7 @@ def visualize_scenario(data, size_pixels=1000):
     crosswalks = [feature.crosswalk for feature in features if feature.WhichOneof("feature_data") == "crosswalk"]
     speed_bumps = [feature.speed_bump for feature in features if feature.WhichOneof("feature_data") == "speed_bump"]
 
-    lane_points = np.array([[point.x, point.y] for lane in lanes for point in lane.polyline])
-    road_line_points = np.array([[point.x, point.y] for road_line in road_lines for point in road_line.polyline])
-    road_edge_points = np.array([[point.x, point.y] for road_edge in road_edges for point in road_edge.polyline])
-
-    roadgraph = np.vstack((road_line_points, road_edge_points))
+    road_graph = (lanes, road_lines, road_edges, stop_signs, crosswalks, speed_bumps)
 
     center_x, center_y, width = get_viewport(tracks)
 
@@ -130,7 +168,7 @@ def visualize_scenario(data, size_pixels=1000):
     for frame in range(num_frames):
         image = visualize_frame(ego, frame,
                                 tracks,
-                                roadgraph,
+                                road_graph,
                                 center_x, center_y, width,
                                 f"frame:{frame}", size_pixels)
         images.append(image)
